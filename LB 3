@@ -1,0 +1,87 @@
+using System;
+
+// Інтрфс пошкод об'єктів
+public interface IDamageable
+{
+    void TakeDamage(int amount);
+}
+
+// клас Projectile (снаряд)
+public abstract class Projectile
+{
+    protected int damage;
+
+    public Projectile(int damage)
+    {
+        this.damage = damage;
+    }
+
+    public abstract void HitTarget(IDamageable target);
+}
+
+// Куля
+public class Bullet : Projectile
+{
+    public Bullet(int damage) : base(damage) { }
+
+    public override void HitTarget(IDamageable target)
+    {
+        Console.WriteLine("Куля влучила в ціль!");
+        target.TakeDamage(damage);
+    }
+}
+
+// Противник
+public class Enemy : IDamageable
+{
+    public int Health { get; private set; }
+
+    public Enemy(int health)
+    {
+        Health = health;
+    }
+
+    public void TakeDamage(int amount)
+    {
+        Health -= amount;
+        Console.WriteLine($"Ворог отримав {amount} шкоди. Залишилось здоров'я: {Health}");
+        if (Health <= 0)
+            Console.WriteLine("Ворог знищений!");
+    }
+}
+
+// Стіна
+public class BreakableWall : IDamageable
+{
+    public int Durability { get; private set; }
+
+    public BreakableWall(int durability)
+    {
+        Durability = durability;
+    }
+
+    public void TakeDamage(int amount)
+    {
+        Durability -= amount;
+        Console.WriteLine($"Стіна отримала {amount} шкоди. Залишилось міцності: {Durability}");
+        if (Durability <= 0)
+            Console.WriteLine("Стіна зруйнована!");
+    }
+}
+
+// Демонстрація роботи
+public class Program
+{
+    public static void Main()
+    {
+        Bullet bullet = new Bullet(30);
+        Enemy enemy = new Enemy(50);
+        BreakableWall wall = new BreakableWall(40);
+
+        Console.WriteLine("=== Вистріл по ворогу ===");
+        bullet.HitTarget(enemy);
+
+        Console.WriteLine("\n=== Вистріл по стіні ===");
+        bullet.HitTarget(wall);
+    }
+}
