@@ -1,0 +1,121 @@
+using System;
+using System.Collections.Generic;
+
+public class User
+{
+    public string UserName { get; set; }
+    public string Email { get; set; }
+    private string _password;
+
+    public User(string userName, string email)
+    {
+        UserName = userName;
+        Email = email;
+    }
+
+    public void SetPassword(string newPassword)
+    {
+        _password = newPassword;
+    }
+
+    public bool Authenticate(string inputPassword)
+    {
+        return _password == inputPassword;
+    }
+
+    public virtual void DisplayInfo()
+    {
+        Console.WriteLine($"Ім'я: {UserName} | Email: {Email}");
+    }
+}
+
+public class Admin : User
+{
+    public Admin(string userName, string email) : base(userName, email) { }
+
+    public void BlockUser(User user)
+    {
+        Console.WriteLine($"Користувача {user.UserName} заблоковано.");
+    }
+
+    public override void DisplayInfo()
+    {
+        base.DisplayInfo();
+        Console.WriteLine("Роль: Адміністратор");
+    }
+}
+
+public class Moderator : User
+{
+    public Moderator(string userName, string email) : base(userName, email) { }
+
+    public void ModerateContent()
+    {
+        Console.WriteLine("Контент модеровано.");
+    }
+
+    public override void DisplayInfo()
+    {
+        base.DisplayInfo();
+        Console.WriteLine("Роль: Модератор");
+    }
+}
+
+public class RegularUser : User
+{
+    public RegularUser(string userName, string email) : base(userName, email) { }
+
+    public void PostComment()
+    {
+        Console.WriteLine("Коментар опубліковано.");
+    }
+
+    public override void DisplayInfo()
+    {
+        base.DisplayInfo();
+        Console.WriteLine("Роль: Звичайний користувач");
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        List<User> users = new List<User>
+        {
+            new Admin("AdminUser", "admin@example.com"),
+            new Moderator("ModUser", "mod@example.com"),
+            new RegularUser("RegUser", "user@example.com")
+        };
+
+        // Встановлення паролів
+        users[0].SetPassword("admin123");
+        users[1].SetPassword("wrongpass");
+        users[2].SetPassword("user123");
+
+        Console.WriteLine("\n=== Інформація про користувачів ===");
+        foreach (var user in users)
+        {
+            user.DisplayInfo();
+            Console.WriteLine();
+        }
+
+        Console.WriteLine("=== Тестування методів ===");
+
+        foreach (var user in users)
+        {
+            if (user is Admin admin)
+                admin.BlockUser(users[2]);
+            else if (user is Moderator moderator)
+                moderator.ModerateContent();
+            else if (user is RegularUser regular)
+                regular.PostComment();
+        }
+
+        Console.WriteLine("\n=== Перевірка аутентифікації ===");
+
+        Console.WriteLine($"{users[0].UserName}: {(users[0].Authenticate("admin123") ? "Успішна аутентифікація" : "Невірний пароль")}");
+        Console.WriteLine($"{users[1].UserName}: {(users[1].Authenticate("mod123") ? "Успішна аутентифікація" : "Невірний пароль")}");
+        Console.WriteLine($"{users[2].UserName}: {(users[2].Authenticate("user123") ? "Успішна аутентифікація" : "Невірний пароль")}");
+    }
+}
